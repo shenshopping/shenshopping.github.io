@@ -1,1 +1,122 @@
-Hello World
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+	body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+	</style>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=VFg5IcTI08zLfm1EOSQ37HXXjofHeTn6"></script>
+	<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+	<title>计网个人作业：沈晓斌</title>
+</head>
+<body>
+	<div id="allmap"></div>
+	<div id="r-result">
+		<div class="optionpanel">
+			<label>选择主题</label>
+			<select id="stylelist" onchange="changeMapStyle(this.value)"></select>
+		</div>
+		<p>查看详细信息请参考<a href='http://lbsyun.baidu.com/custom/list.htm' target="_blank">个性模板列表页</a></p>
+	</div>   
+</body>
+</html>
+<script type="text/javascript" src="http://lbsyun.baidu.com/custom/stylelist.js"></script>
+<script type="text/javascript">
+	// 百度地图API功能
+	var sel = document.getElementById('stylelist');
+	for(var key in mapstyles){
+		var style = mapstyles[key];
+		var item = new  Option(style.title,key);
+		sel.options.add(item);
+	}
+	var map = new BMap.Map("allmap");
+	window.map = map;
+	var point0 = new BMap.Point(120.3617506172, 29.0535939482);
+	var point1 = new BMap.Point(120.0925223670, 30.3101003431);
+	var point2 = new BMap.Point(120.6309788674, 27.7970875533);
+	map.centerAndZoom(point0, 8);
+	map.addControl(new BMap.MapTypeControl());          //添加地图类型控件
+	map.disable3DBuilding();
+	changeMapStyle('light')
+	sel.value = 'light';
+	function changeMapStyle(style){
+		map.setMapStyle({style:style});
+		$('#desc').html(mapstyles[style].desc);
+	}
+
+	var navigationControl = new BMap.NavigationControl({
+		anchor: BMAP_ANCHOR_TOP_LEFT,
+		type: BMAP_NAVIGATION_CONTROL_LARGE,
+		enableGeolocation: true
+	});
+	map.addControl(navigationControl);
+	var geolocationControl = new BMap.GeolocationControl();
+	geolocationControl.addEventListener("locationSuccess", function(e){
+		var address = '';
+		address += e.addressComponent.province;
+    	address += e.addressComponent.city;
+    	address += e.addressComponent.district;
+    	address += e.addressComponent.street;
+    	address += e.addressComponent.streetNumber;
+    	alert("当前定位地址为：" + address);
+    });
+    geolocationControl.addEventListener("locationError",function(e){
+    	alert(e.message);
+    });
+    map.addControl(geolocationControl);
+
+	
+	map.enableScrollWheelZoom();   //启用滚轮放大缩小，默认禁用
+	map.enableContinuousZoom(); //启用地图惯性拖拽，默认禁用
+
+	var sContent1 =
+	"<h4 style='margin:0 0 5px 0;padding:0.2em 0'>我的大学：浙江大学紫金港校区</h4>" + 
+	"<img style='float:right;margin:4px' id='imgDemo' src='http://img1.ph.126.net/qNpebHB3U8l8RRWXUiz57w==/3082713944954581651.jpg' width='250' height='150' title='我的大学'/>" + 
+	"<p style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>浙江大学紫金港校区的小剧场内经常举办一些精彩的活动。</p>" + 
+	"</div>";
+	var marker1 = new BMap.Marker(point1);
+	var infoWindow1 = new BMap.InfoWindow(sContent1);  // 创建信息窗口对象
+	map.addOverlay(marker1);
+	marker1.addEventListener("click", function(){          
+	   this.openInfoWindow(infoWindow1);
+	   //图片加载完毕重绘infowindow
+	   document.getElementById('imgDemo').onload = function (){
+		   infoWindow1.redraw();   //防止在网速较慢，图片未加载时，生成的信息框高度比图片的总高度小，导致图片部分被隐藏
+	   }
+	});
+
+	var sContent2 =
+	"<h4 style='margin:0 0 5px 0;padding:0.2em 0'>我的高中：浙江省瑞安中学</h4>" + 
+	"<img style='float:right;margin:4px' id='imgDemo2' src='http://img0.ph.126.net/2qxisr9WYd16LJe2Rg0F5Q==/6632601584423365113.jpg' width='250' height='150' title='我的高中'/>" + 
+	"<p style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>浙江省瑞安中学是浙江省一级重点中学，它的校训是“甄综术艺，以应时需”。</p>" 
+	"</div>";
+	var marker2 = new BMap.Marker(point2);
+	var infoWindow2 = new BMap.InfoWindow(sContent2);  // 创建信息窗口对象
+	//map.centerAndZoom(point, 15);
+	map.addOverlay(marker2);
+	marker2.addEventListener("click", function(){          
+	   this.openInfoWindow(infoWindow2);
+	   //图片加载完毕重绘infowindow
+	   document.getElementById('imgDemo2').onload = function (){
+		   infoWindow2.redraw();   //防止在网速较慢，图片未加载时，生成的信息框高度比图片的总高度小，导致图片部分被隐藏
+	   }
+	});
+
+
+	var opts = {
+    position : point,    // 指定文本标注所在的地理位置
+    offset   : new BMap.Size(30, -30)    //设置文本偏移量
+	}
+	var label = new BMap.Label("点击红色标记查看更多信息。", opts);
+	label.setStyle({
+		color : "red",
+		fontSize : "12px",
+		height : "20px",
+		lineHeight : "20px",
+		fontFamily:"微软雅黑"
+	});
+	map.addOverlay(label);   
+
+</script>
+
